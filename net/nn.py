@@ -12,9 +12,9 @@ import tensorflow as tf
 
 import gen_input
 
-class Deepnn:
+class DeepNN:
     def __init__(self, data_dir=None, x_shape_size=1024, testing_percetage=10, validation_percentage=10):
-        self.t = gen_input.process()
+        self.t = gen_input.Process()
         if data_dir is not None: self.t.set_path(data_dir)
         self.t.gen_labels()
         y_shape_size = len(self.t.labels) -1
@@ -46,5 +46,4 @@ class Deepnn:
 
     # Set the data array for training, testing and validation
     def set_data(self):
-        dic = self.t.create_image_lists(self.testing_percetage, self.validation_percentage)
-        print(dic)
+        self.inputs = self.t.run()

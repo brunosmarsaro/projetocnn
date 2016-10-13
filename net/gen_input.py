@@ -1,8 +1,9 @@
-'''
-Image treatment
+"""
+Generate the input properly set to be given as input to a CNN.
+Parts of the code was based on Inception's code.
 
     author: Bruno Smarsaro Bazelato
-'''
+"""
 
 import os
 import glob
@@ -11,26 +12,74 @@ import hashlib
 
 import numpy as np
 import tensorflow as tf
+import matplotlib.pyplot as plt
 
 from tensorflow.python.util import compat
 from tensorflow.python.platform import gfile
+from scipy import misc
 
-image_path = "teste.jpg"
-image_data = tf.gfile.FastGFile(image_path, 'rb').read()
+# image_path = "teste.jpg"
+# image_data = tf.gfile.FastGFile(image_path, 'rb').read()
 
-class process:
-    '''
+
+class Process:
+
+    """
     Attributes:
         path: path to the database
         labels: list of labels
 
     Methods:
-        gen_labels: generate one file with the labels to the data and another file with the files' name and their respective label
+        gen_labels: generate one file with the labels to the data
+        and another file with the files' name and their respective label.
 
-    '''
+    """
     def __init__(self, path = "database"):
         self.path = path
         self.labels = []
+
+    def run(self,testing_percentage = 10, validation_percentage = 10):
+        """Main method to do all the work at once"""
+        image_lists = self.create_image_lists(testing_percentage, validation_percentage)
+        class_count = len(image_lists.keys())
+        labels = list(image_lists.keys())
+
+        if class_count == 0:
+            print('No valid folders of images found at ' + FLAGS.image_dir)
+            return -1
+        if class_count == 1:
+            print('Only one valid folder of images found at ' + FLAGS.image_dir +
+                  ' - multiple classes are needed for classification.')
+            return -1
+
+        data_input = {}
+
+        i = 0
+        dic_labels = {}
+        for l in labels:
+            dic_labels[l] = np.zeros(class_count)
+            dic_labels[l][i] = 1.
+            i += 1
+        i = 0
+        for label_name in labels:
+            label_lists = image_lists[label_name]
+            for category in label_lists.keys():
+                if category == "dir": continue
+                category_list = label_lists[category]
+                data_input[category] = (np.array([]),np.array([]))
+                print(category)
+
+                for image in category_list:
+                    print(i)
+                    image_path = self.path + "/" + label_name + "/" + image
+                    img = misc.face()
+                    misc.imsave(image_path, img)
+                    img = misc.imread(image_path)
+                    np.append(data_input[category][0], [img])
+                    np.append(data_input[category][1], [dic_labels[label_name]])
+                    i += 1
+
+        return data_input
 
     def set_path(self, path):
         self.path = path
@@ -59,7 +108,6 @@ class process:
           describing the lists of images for each label and their paths.
 
           Args:
-            image_dir: String path to a folder containing subfolders of images.
             testing_percentage: Integer percentage of the images to reserve for tests.
             validation_percentage: Integer percentage of images reserved for validation.
 
