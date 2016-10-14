@@ -18,9 +18,6 @@ from tensorflow.python.util import compat
 from tensorflow.python.platform import gfile
 from scipy import misc
 
-# image_path = "teste.jpg"
-# image_data = tf.gfile.FastGFile(image_path, 'rb').read()
-
 
 class Process:
 
@@ -31,24 +28,24 @@ class Process:
 
     Methods:
         gen_labels: generate one file with the labels to the data
-        and another file with the files' name and their respective label.
+                    and another file with the files' name and their respective label.
 
     """
     def __init__(self, path = "database"):
         self.path = path
         self.labels = []
 
-    def run(self,testing_percentage = 10, validation_percentage = 10):
+    def run(self,testing_percentage = 10, validation_percentage=0):
         """Main method to do all the work at once"""
         image_lists = self.create_image_lists(testing_percentage, validation_percentage)
         class_count = len(image_lists.keys())
         labels = list(image_lists.keys())
 
         if class_count == 0:
-            print('No valid folders of images found at ' + FLAGS.image_dir)
+            print('No valid folders of images found at ' + self.path)
             return -1
         if class_count == 1:
-            print('Only one valid folder of images found at ' + FLAGS.image_dir +
+            print('Only one valid folder of images found at ' + self.path +
                   ' - multiple classes are needed for classification.')
             return -1
 
@@ -61,24 +58,32 @@ class Process:
             dic_labels[l][i] = 1.
             i += 1
         i = 0
+        print('Loading data')
         for label_name in labels:
             label_lists = image_lists[label_name]
             for category in label_lists.keys():
                 if category == "dir": continue
+                data_input[category] = [[],[]]
+
+        for label_name in labels:
+            label_lists = image_lists[label_name]
+
+            for category in label_lists.keys():
+                if category == "dir": continue
                 category_list = label_lists[category]
-                data_input[category] = (np.array([]),np.array([]))
-                print(category)
 
                 for image in category_list:
-                    print(i)
                     image_path = self.path + "/" + label_name + "/" + image
-                    img = misc.face()
-                    misc.imsave(image_path, img)
                     img = misc.imread(image_path)
-                    np.append(data_input[category][0], [img])
-                    np.append(data_input[category][1], [dic_labels[label_name]])
+                    # plt.imshow(img)
+                    # plt.show()
+                    data_input[category][0] += [img]
+                    data_input[category][1] += [dic_labels[label_name]]
+                    #m = input()
                     i += 1
 
+        for cat in data_input.keys():
+            data_input[cat] = [np.array(data_input[cat][0]), np.array(data_input[cat][1])]
         return data_input
 
     def set_path(self, path):
@@ -88,14 +93,14 @@ class Process:
         if not gfile.Exists(self.path):
             print("Image directory '" + self.path + "' not found.")
             return None
-        fp_files = open("files.txt", "a+")
+        fp_files = open("files.txt", "w")
         for r,d,folder in os.walk(self.path):
             self.labels.append(os.path.basename(r))
             for file in folder:
                 fp_files.write("%s\t%s\n"%(file, os.path.basename(r)))
 
         fp_files.close()
-        with open("trained_labels.txt", "a+") as fp_labels:
+        with open("trained_labels.txt", "w") as fp_labels:
             for i in range(1, len(self.labels)):
                 fp_labels.write(self.labels[i])
                 fp_labels.write("\n")
@@ -157,17 +162,18 @@ class Process:
                 # probability value that we use to assign it.
                 hash_name_hashed = hashlib.sha1(compat.as_bytes(hash_name)).hexdigest()
                 percentage_hash = (int(hash_name_hashed, 16) % (65536)) * (100 / 65535.0)
+
                 if percentage_hash < validation_percentage:
                     validation_images.append(base_name)
                 elif percentage_hash < (testing_percentage + validation_percentage):
                     testing_images.append(base_name)
                 else:
                     training_images.append(base_name)
+
             result[label_name] = {
                 'dir': dir_name,
                 'training': training_images,
                 'testing': testing_images,
                 'validation': validation_images,
             }
-
         return result
