@@ -10,7 +10,9 @@ The NN has 8 main layers, being the first 5 convolutional and the 3 left fully c
 import tensorflow as tf
 from nn import DeepNN
 
-sess = tf.InteractiveSession()
+config = tf.ConfigProto()
+config.gpu_options.allow_growth = True
+sess = tf.InteractiveSession(config=config)
 
 nw = DeepNN()
 if nw.inputs == -1: exit()
@@ -86,7 +88,6 @@ b_fc3 = nw.bias_variable([2])
 y_conv = tf.nn.softmax(tf.matmul(h_fc2_drop, W_fc3) + b_fc3)
 
 # Train and Evaluate the Model
-print("HERE")
 
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(nw.y_ * tf.log(y_conv), reduction_indices=[1]))
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
@@ -97,8 +98,8 @@ sess.run(tf.initialize_all_variables())
 for i in range(max_steps):
     # print(nw.inputs["training"])
     batch = nw.next_batch(nw.inputs["training"], batch_size)
-    print(batch[0], type(batch[0]))
-    input()
+    #print(batch[0], type(batch[0]))
+    #input()
     if i%100 == 0:
         train_accuracy = accuracy.eval(feed_dict={
             nw.x:batch[0], nw.y_: batch[1], keep_prob: 1.0})

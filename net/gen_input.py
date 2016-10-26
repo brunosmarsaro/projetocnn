@@ -1,6 +1,6 @@
 """
 Generate the input properly set to be given as input to a CNN.
-Parts of the code was based on Inception's code.
+Parts of the code were based on Inception's code.
 
     author: Bruno Smarsaro Bazelato
 """

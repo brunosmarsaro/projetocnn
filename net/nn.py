@@ -21,7 +21,7 @@ class DeepNN:
             y_ : placeholder
             t: instance of gen_input class to generate set data.
             inputs: input set
-
+            index:
 
         Methods:
             weight_variable and bias_variable: initiate variables
