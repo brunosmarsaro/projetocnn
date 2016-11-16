@@ -63,27 +63,44 @@ class Process:
             label_lists = image_lists[label_name]
             for category in label_lists.keys():
                 if category == "dir": continue
-                data_input[category] = [[],[]]
+                data_input[category] = [np.array([]),np.array([])]
 
         for label_name in labels:
             label_lists = image_lists[label_name]
-
             for category in label_lists.keys():
                 if category == "dir": continue
                 category_list = label_lists[category]
 
                 for image in category_list:
+
                     image_path = self.path + "/" + label_name + "/" + image
-                    img = misc.imread(image_path)
-                    # plt.imshow(img)
-                    # plt.show()
-                    data_input[category][0] += [img]
-                    data_input[category][1] += [dic_labels[label_name]]
-                    #m = input()
+                    img = misc.imread(image_path, mode='L', flatten=True)
+                    #plt.imshow(img)
+                    #plt.show()
+                    img = np.array(img.flatten())
+
+                    try:
+                        data_input[category][0] = np.concatenate((data_input[category][0], [img]), axis=0)
+                    except ValueError:
+                        data_input[category][0] = np.array([img])
+                    try:
+                        data_input[category][1] = np.concatenate((data_input[category][1], [dic_labels[label_name]]), axis=0)
+                    except ValueError:
+                        data_input[category][1] = np.array([dic_labels[label_name]])
+
+
+                    #print(data_input[category][0])
+                    # m = input()
                     i += 1
 
         for cat in data_input.keys():
-            data_input[cat] = [np.array(data_input[cat][0]), np.array(data_input[cat][1])]
+            #data_input[cat] = [np.array(data_input[cat][0]), np.array(data_input[cat][1])]
+            print(cat)
+            data_input[cat][0] = np.array(data_input[cat][0])
+            print(data_input[cat][0].shape)
+            data_input[cat][1] = np.array(data_input[cat][1])
+            #data_input[cat] = np.array(data_input[cat])
+
         return data_input
 
     def set_path(self, path):
