@@ -92,16 +92,14 @@ class Process:
                     #print(data_input[category][0])
                     # m = input()
                     i += 1
-
-        for cat in data_input.keys():
-            #data_input[cat] = [np.array(data_input[cat][0]), np.array(data_input[cat][1])]
-            print(cat)
-            data_input[cat][0] = np.array(data_input[cat][0])
-            print(data_input[cat][0].shape)
-            data_input[cat][1] = np.array(data_input[cat][1])
-            #data_input[cat] = np.array(data_input[cat])
-
         return data_input
+
+
+#        for cat in data_input.keys():
+#            data_input[cat][0] = np.array(data_input[cat][0])
+#            print(data_input[cat][0].shape)
+#            data_input[cat][1] = np.array(data_input[cat][1])
+
 
     def set_path(self, path):
         self.path = path
