@@ -27,8 +27,10 @@ class Process:
         labels: list of labels
 
     Methods:
-        gen_labels: generate one file with the labels to the data
+        run:
+        gen_labels: generates one file with the labels to the data
                     and another file with the files' name and their respective label.
+        create_image_lists: builds a list of training images from the file system.
 
     """
     def __init__(self, path = "database"):

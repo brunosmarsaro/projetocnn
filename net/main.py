@@ -6,7 +6,6 @@ The NN has 8 main layers, being the first 5 convolutional and the 3 left fully c
 
     author: Bruno Smarsaro Bazelato
 """
-
 import tensorflow as tf
 from nn import DeepNN
 
@@ -20,7 +19,7 @@ nw = DeepNN()
 if nw.inputs == -1: exit()
 
 max_steps = 10000
-batch_size = 50
+batch_size = 20
 
 # First Convolutional Layer
 
@@ -66,18 +65,18 @@ h_pool5 = nw.max_pool_2x2(h_conv4)
 
 # First Fully Connected Layer
 
-W_fc1 = nw.weight_variable([7 * 7 * 64, 4096])
+W_fc1 = nw.weight_variable([8192, 4096])
 b_fc1 = nw.bias_variable([4096])
 
-h_pool1_flat = tf.reshape(h_pool5, [-1, 7*7*64])
+h_pool1_flat = tf.reshape(h_pool5, [-1, 8192]) #7*7*256
 h_fc1 = tf.nn.relu(tf.matmul(h_pool1_flat, W_fc1) + b_fc1)
 
 # Second Fully Connected Layer
 
-W_fc2 = nw.weight_variable([7 * 7 * 64, 4096])
+W_fc2 = nw.weight_variable([8192, 4096])
 b_fc2 = nw.bias_variable([4096])
 
-h_pool2_flat = tf.reshape(h_pool1_flat, [-1, 7*7*64])
+h_pool2_flat = tf.reshape(h_pool1_flat, [-1, 8192]) # 7*7*64
 h_fc2 = tf.nn.relu(tf.matmul(h_pool2_flat, W_fc2) + b_fc2)
 
 # Third Fully Connected Layer (Readout Layer)
@@ -94,7 +93,10 @@ y_conv = tf.nn.softmax(tf.matmul(h_fc2_drop, W_fc3) + b_fc3)
 
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(nw.y_ * tf.log(y_conv), reduction_indices=[1]))
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
+# print(tf.argmax(y_conv,1))
+# print(tf.argmax(nw.y_,1))
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(nw.y_,1))
+# print(correct_prediction)
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 sess.run(tf.initialize_all_variables())
 
