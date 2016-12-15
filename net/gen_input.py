@@ -79,6 +79,8 @@ class Process:
                     img = misc.imread(image_path, mode='L', flatten=True)
                     #plt.imshow(img)
                     #plt.show()
+                    #print(img)
+                    #input()
                     img = np.array(img.flatten())
 
                     try:

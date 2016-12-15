@@ -23,10 +23,10 @@ batch_size = 20
 
 # First Convolutional Layer
 
-W_conv1 = nw.weight_variable([55, 55, 5, 96])
+W_conv1 = nw.weight_variable([55, 55, 1, 96]) # 55, 55, 5, 96
 b_conv1 = nw.bias_variable([96])
 
-x_image = tf.reshape(nw.x, [-1,1024,1024,5])
+x_image = tf.reshape(nw.x, [-1,1024,1024,1]) # [-1,1024,1024,5]
 
 h_conv1 = tf.nn.relu(nw.conv2d(x_image, W_conv1) + b_conv1)
 h_pool1 = nw.max_pool_2x2(h_conv1)
@@ -93,10 +93,11 @@ y_conv = tf.nn.softmax(tf.matmul(h_fc2_drop, W_fc3) + b_fc3)
 
 cross_entropy = tf.reduce_mean(-tf.reduce_sum(nw.y_ * tf.log(y_conv), reduction_indices=[1]))
 train_step = tf.train.AdamOptimizer(1e-4).minimize(cross_entropy)
-# print(tf.argmax(y_conv,1))
-# print(tf.argmax(nw.y_,1))
+#print(tf.rank(tf.argmax(y_conv,1)))
+#print(tf.rank(tf.argmax(nw.y_,1)))
 correct_prediction = tf.equal(tf.argmax(y_conv,1), tf.argmax(nw.y_,1))
-# print(correct_prediction)
+#print(correct_prediction)
+#input()
 accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
 sess.run(tf.initialize_all_variables())
 
@@ -105,8 +106,10 @@ print("Train and Evaluate the Model")
 for i in range(max_steps):
     batch = nw.next_batch(nw.inputs["training"], batch_size)
     if i%100 == 0:
-        train_accuracy = accuracy.eval(feed_dict={
-            nw.x: batch[0], nw.y_: batch[1], keep_prob: 1.0})
+        #print(batch[0].shape, type(batch[0]))
+        #print(batch[1].shape, type(batch[1]))
+        #input()
+        train_accuracy = accuracy.eval(feed_dict={nw.x: batch[0], nw.y_: batch[1], keep_prob: 1.0})
 
         print("step %d, training accuracy %g"%(i, train_accuracy))
     train_step.run(feed_dict={nw.x: batch[0], nw.y_: batch[1], keep_prob: 0.5})

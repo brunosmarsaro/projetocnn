@@ -80,6 +80,8 @@ class DeepNN:
             data[1] = data[1][perm]
             start = 0
             self.index = size
-            assert size <= self.data[0].shape[0]
+            #print(data[0].shape[0])
+            #input()
+            #assert size <= data[0].shape[0]
         end = self.index
         return data[0][start:end], data[1][start:end]
