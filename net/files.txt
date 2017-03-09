@@ -1,8 +1,0 @@
-mdb007_red.jpg	normal
-mdb004_red.jpg	normal
-mdb006_red.jpg	normal
-mdb003_red.jpg	normal
-mdb010_red.jpg	achado
-mdb001_red.jpg	achado
-mdb002_red.jpg	achado
-mdb005_red.jpg	achado
