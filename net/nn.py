@@ -31,7 +31,7 @@ class DeepNN:
             next_batch: select new set of data to be given as input during a step
 
     """
-    def __init__(self, data_dir=None, x_shape_size=1024*1024, testing_percentage=10, validation_percentage=0):
+    def __init__(self, data_dir=None, x_shape_size=32*32, testing_percentage=10, validation_percentage=0):
         self.t = gen_input.Process()
         if data_dir is not None: self.t.set_path(data_dir)
         self.t.gen_labels()
