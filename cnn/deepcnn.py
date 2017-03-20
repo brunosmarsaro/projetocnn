@@ -1,29 +1,37 @@
+import timeit
+start = timeit.default_timer()
+
 # Variáveis e Parametros
 
-max_steps = 2000
-batch_size = 20
+database_path = "database"
+max_steps = 6000
+batch_size = 10
 index = 0
-testing_percentage = 10
+testing_percentage = 5
 validation_percentage = 0
-width = 28
-height = 28
+width = 128
+height = 128
 n_classes = 2
+n_maxpool = 3
 
 # Carregar base de dados
 import input
-inputs = input.Process()
+inputs = input.Process(path=database_path)
 images = inputs.run(testing_percentage, validation_percentage)
 
 # Iniciando uma sessao 
 import tensorflow as tf
 import numpy as np
 
+
 config = tf.ConfigProto(
         device_count = {'GPU': 0}
     )
-sess = tf.InteractiveSession()
+sess = tf.InteractiveSession(config=config)
+
 
 # Placeholders
+
 x = tf.placeholder(tf.float32, shape=[None, width*height])
 y_ = tf.placeholder(tf.float32, shape=[None, n_classes])
 
@@ -64,57 +72,57 @@ def next_batch(data, size):
 
 # Primeira Camada Convolucional
 
-W_conv1 = weight_variable([20, 20, 1, 32])
-b_conv1 = bias_variable([32])
+W_conv1 = weight_variable([55, 55, 1, 96]) # 20,20,1,32
+b_conv1 = bias_variable([96])
 
 x_image = tf.reshape(x, [-1,width,height,1])
 
 h_conv1 = tf.nn.relu(conv2d(x_image, W_conv1) + b_conv1)
-h_pool1 = max_pool_2x2(h_conv1)
+h_pool1 = max_pool_2x2(h_conv1) # 64x64
 
 # Segunda Camada Convolucional
 
-W_conv2 = weight_variable([10, 10, 32, 64])
+W_conv2 = weight_variable([27, 27, 96, 64]) # 10,10,32,64
 b_conv2 = bias_variable([64])
 
 h_conv2 = tf.nn.relu(conv2d(h_pool1, W_conv2) + b_conv2)
-h_pool2 = max_pool_2x2(h_conv2)
+h_pool2 = max_pool_2x2(h_conv2) # 32x32
 
 # Terceira Camada Convolucional
 
-W_conv3 = weight_variable([7, 7, 64, 128])
+W_conv3 = weight_variable([14, 14, 64, 128]) # 7,7,64,128
 b_conv3 = bias_variable([128])
 
 h_conv3 = tf.nn.relu(conv2d(h_pool2, W_conv3) + b_conv3)
-h_pool3 = max_pool_2x2(h_conv3)
+#h_pool3 = max_pool_2x2(h_conv3)
 
 # Quarta Camada Convolucional
 
-W_conv4 = weight_variable([4, 4, 128, 64])
+W_conv4 = weight_variable([14, 14, 128, 64]) # 4,4,128,64
 b_conv4 = bias_variable([64])
 
-h_conv4 = tf.nn.relu(conv2d(h_pool3, W_conv4) + b_conv4)
-h_pool4 = max_pool_2x2(h_conv4)
+h_conv4 = tf.nn.relu(conv2d(h_conv3, W_conv4) + b_conv4)
+#h_pool4 = max_pool_2x2(h_conv4)
 
 # Quinta Camada Convolucional
 
-W_conv5 = weight_variable([2, 2, 64, 256])
+W_conv5 = weight_variable([8, 8, 64, 256]) #2,2,64,256
 b_conv5 = bias_variable([256])
 
-h_conv5 = tf.nn.relu(conv2d(h_pool4, W_conv5) + b_conv5)
-h_pool5 = max_pool_2x2(h_conv5)
+h_conv5 = tf.nn.relu(conv2d(h_conv4, W_conv5) + b_conv5)
+h_pool5 = max_pool_2x2(h_conv5) # 16x16
 
 # Primeira Camada Densamente Conectada
 
-W_fc1 = weight_variable([1 * 1 * 256, 2048])
+W_fc1 = weight_variable([(int(width/(2**n_maxpool)) * int(height/(2**n_maxpool)) * 256), 2048]) #2048
 b_fc1 = bias_variable([2048])
 
-h_pool2_flat1 = tf.reshape(h_pool5, [-1, 1*1*256])
+h_pool2_flat1 = tf.reshape(h_pool5, [-1, (int(width/(2**n_maxpool)) * int(height/(2**n_maxpool)) * 256)])
 h_fc1 = tf.nn.relu(tf.matmul(h_pool2_flat1, W_fc1) + b_fc1)
 
 # Segunda Camada Densamente Conectada
 
-W_fc2 = weight_variable([2048, 4096])
+W_fc2 = weight_variable([2048, 4096]) #2048,4096
 b_fc2 = bias_variable([4096])
 
 h_pool2_flat2 = tf.reshape(h_fc1, [-1, 2048])
@@ -143,7 +151,7 @@ for i in range(max_steps):
 
   if i%100 == 0:
     train_accuracy = accuracy.eval(feed_dict={
-        x:batch[0], y_: batch[1], keep_prob: 1.0})
+        x: batch[0], y_: batch[1], keep_prob: 1.0})
     
     print("step %d, training accuracy %g"%(i, train_accuracy))
 
@@ -153,3 +161,5 @@ print("test accuracy %g"%accuracy.eval(feed_dict={
     x: images["testing"][0], y_: images["testing"][1], keep_prob: 1.0}))
 
 sess.close()
+stop = timeit.default_timer()
+print("duration: %.2f min" %((stop - start)/60))
