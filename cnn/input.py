@@ -5,18 +5,15 @@ Parts of the code were based on Inception's code.
     author: Bruno Smarsaro Bazelato
 """
 
-import os
 import glob
-import re
 import hashlib
+import os
+import re
 
 import numpy as np
-import tensorflow as tf
-import matplotlib.pyplot as plt
-
-from tensorflow.python.util import compat
-from tensorflow.python.platform import gfile
 from scipy import misc
+from tensorflow.python.platform import gfile
+from tensorflow.python.util import compat
 
 
 class Process:
@@ -42,6 +39,7 @@ class Process:
         image_lists = self.create_image_lists(testing_percentage, validation_percentage)
         class_count = len(image_lists.keys())
         labels = list(image_lists.keys())
+        self.gen_labels()
 
         if class_count == 0:
             print('No valid folders of images found at ' + self.path)
@@ -91,7 +89,7 @@ class Process:
                         data_input[category][1] = np.array([dic_labels[label_name]])
 
                     i += 1
-        return data_input
+        return data_input, image_lists
 
     def set_path(self, path):
         self.path = path
