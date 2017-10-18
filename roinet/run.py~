@@ -1,0 +1,11 @@
+import csv
+import os
+
+dirimg_path = "/database/achado"
+with open("mias_info.csv","r") as mias_info:
+    r_mias = csv.reader(mias_info, delimiter=" ")
+    for row in r_mias:
+        if len(row) != 7: continue
+        for file in  os.listdir(dirimg_path):
+            print(file)
+        print(row)
