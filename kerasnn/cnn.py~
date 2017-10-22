@@ -1,0 +1,3 @@
+from genInput import genInput
+
+img = genInputs()
