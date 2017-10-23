@@ -1,4 +1,5 @@
 from __future__ import print_function
+import os
 import keras
 from keras.layers import Dense, Flatten
 from keras.layers import Conv2D, MaxPooling2D
@@ -8,12 +9,12 @@ from sklearn.metrics import roc_auc_score, roc_curve, auc
 
 import genInput
 
-data  = genInput.GenInput(dir="../cnn/database_128x128")
+os.environ['TF_CPP_MIN_LOG_LEVEL']='2'
+data  = genInput.GenInput(dir="../database/64x64")
 
 batchSize = 20
 numClasses = len(data.labels)
-epochs = 5
-
+epochs = 1000
 inputShape = data.dimensions
 
 model = Sequential()
@@ -58,11 +59,13 @@ print('\nAUC:', rauc)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
+plt.subplot(121)
 plt.plot(range(1, epochs+1), history.acc)
 plt.xlabel('Epochs')
 plt.ylabel('Accuracy')
-plt.show()
+#plt.show()
 
+plt.subplot(122)
 plt.title('Receiver Operating Characteristic')
 plt.plot(fp, tp, 'b',label='AUC = %0.2f'% rauc)
 plt.legend(loc='lower right')

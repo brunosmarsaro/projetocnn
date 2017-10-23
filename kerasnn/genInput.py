@@ -19,6 +19,7 @@ class GenInput:
         self.createImageList()
         self.generate()
         self.setDimensions()
+        print("Data loaded")
 
     def generate(self):
         # Possible errors:
@@ -43,12 +44,14 @@ class GenInput:
                 for image in self.imageList[label][category]:
                     img = Image.open(image)
                     # PLACE HERE PREPROCESSING FROM PIL
+                    img = self.changeContrast(img, 100)
                     imgArray = np.array(img)
                     # PLACE HERE PREPROCESSING FROM NUMPY
                     imgArray = imgArray.astype('float32')
                     imgArray /= 255
-                    img_x, img_y = imgArray.shape
-                    imgArray = imgArray.reshape(img_x, img_y, 1)
+                    if len(imgArray.shape) == 2:
+                        img_x, img_y = imgArray.shape
+                        imgArray = imgArray.reshape(img_x, img_y, 1)
                     self.inputs["images"][category].append(imgArray)
                     self.inputs["labels"][category].append(dicLabels[label])
         
@@ -56,6 +59,12 @@ class GenInput:
             for category in self.inputs[type].keys():
                 self.inputs[type][category] = np.asarray(self.inputs[type][category])
                 
+    def changeContrast(self, img, level):
+        factor = (259 * (level + 255)) / (255 * (259 - level))
+        def contrast(c):
+            return 128 + factor * (c - 128)
+        return img.point(contrast)
+
 
     def createImageList(self):
         self.imageList = {}
