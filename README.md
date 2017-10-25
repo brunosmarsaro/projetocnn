@@ -7,8 +7,10 @@ Bruno Smarsaro Bazelato
 ### Dependências:
 - Numpy
 - TensorFlow
+- Keras
 - Scipy
 - Matplotlib
+
 
 ### Contato:
 brunosmarsaro@gmail.com
