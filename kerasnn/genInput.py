@@ -9,13 +9,14 @@ from tensorflow.python.util import compat
 
 
 class GenInput:
-    def __init__(self, dir="database", testingPercentage=10, validationPercentage=10):
+    def __init__(self, dir="database", testingPercentage=10, validationPercentage=10, padding_colour="black"):
         self.dir = dir
         self.inputs = {"images": {"training":[], "testing":[],"validation":[]},
                        "labels": {"training":[], "testing":[],"validation":[]}}
         self.labels = []
         self.testingPercentage = testingPercentage
         self.validationPercentage = validationPercentage
+        self.padding_colour = padding_colour
         self.createImageList()
         self.generate()
         self.setDimensions()
@@ -37,6 +38,17 @@ class GenInput:
             dicLabels[label][i] = 1.
             i += 1
 
+        biggest_image = (0,0)
+        for label in self.labels:
+            for category in self.imageList[label].keys():
+                if category == "dir": continue
+                categoryList = []
+                for image in self.imageList[label][category]:
+                    img = Image.open(image)
+                    if img.size > biggest_image: biggest_image = img.size
+
+        padding_size = (max(biggest_image) + 1, max(biggest_image) + 1) 
+
         for label in self.labels:
             for category in self.imageList[label].keys():
                 if category == "dir": continue
@@ -44,6 +56,7 @@ class GenInput:
                 for image in self.imageList[label][category]:
                     img = Image.open(image)
                     # PLACE HERE PREPROCESSING FROM PIL
+                    img = self.padding(img, padding_size)
                     img = self.changeContrast(img, 100)
                     imgArray = np.array(img)
                     # PLACE HERE PREPROCESSING FROM NUMPY
@@ -65,6 +78,12 @@ class GenInput:
             return 128 + factor * (c - 128)
         return img.point(contrast)
 
+    def padding(self, img, padding_size):
+        new_image = Image.new("RGB", padding_size, self.padding_colour)
+        a = (int((padding_size[0]-img.size[0])/2), int((padding_size[1]-img.size[1])/2))
+        #print(a)
+        new_image.paste(img, a)
+        return new_image
 
     def createImageList(self):
         self.imageList = {}
