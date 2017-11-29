@@ -44,6 +44,7 @@ class GenInput:
                 if category == "dir": continue
                 categoryList = []
                 for image in self.imageList[label][category]:
+                    #print(label + " - " + category + " : " + image)
                     img = Image.open(image)
                     if img.size > biggest_image: biggest_image = img.size
 
@@ -57,7 +58,9 @@ class GenInput:
                     img = Image.open(image)
                     # PLACE HERE PREPROCESSING FROM PIL
                     img = self.padding(img, padding_size)
-                    img = self.changeContrast(img, 100)
+                    #img = self.changeContrast(img, 100)
+                    #img.show()
+                    #input()
                     imgArray = np.array(img)
                     # PLACE HERE PREPROCESSING FROM NUMPY
                     imgArray = imgArray.astype('float32')
